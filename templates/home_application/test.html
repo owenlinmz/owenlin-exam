@@ -1,0 +1,202 @@
+<%inherit file="/base.html"/>
+
+<%block name="content">
+
+<div class="home-page" id="app">
+    <div class="wrapper">
+        <div class="charts-wrapper">
+            <div id="pie" style="height:400px;padding:10px;width: 900px;"></div>
+        </div>
+        <div class="charts-wrapper">
+            <div id="bar" style="height:400px;padding:10px;width: 900px;"></div>
+        </div>
+        <div class="charts-wrapper">
+            <div id="line" style="height:400px;padding:10px;width: 900px;"></div>
+        </div>
+        <div class="charts-wrapper">
+            <div id="lineBar" style="height:400px;padding:10px;width: 900px;"></div>
+        </div>
+    </div>
+
+    <!-- 弹窗
+    <Modal v-model="modal1" title="性能查询" @on-ok="update_pfm" @on-cancel="cancel">
+            <p v-if="is_delete">请先启动该主机的监控</p>
+            <p v-else>是否确认更新该主机的性能</p>
+        </Modal>
+    -->
+</div>
+</%block>
+<script>
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                chartData: {
+                    title: '',
+                    series: [
+                        {'name': '1月1日', 'value': 123},
+                        {'name': '1月2日', 'value': 1223},
+                        {'name': '1月3日', 'value': 2123},
+                        {'name': '1月4日', 'value': 4123},
+                        {'name': '1月5日', 'value': 3123},
+                        {'name': '1月6日', 'value': 7123}
+                    ]
+                },
+                lineData: {
+                    "xAxis": ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
+                    "series": [
+                        {
+                            "name": "蒸发量",
+                            "type": "line",
+                            "data": [2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3]
+                        },
+                        {
+                            "name": "降水量",
+                            "type": "line",
+                            "data": [2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3]
+                        }
+                    ]
+                },
+                barData: {
+                    xAxis: ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
+                    series: [
+                        {
+                            "name": "蒸发量",
+                            "type": "bar",
+                            "data": [2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3]
+                        },
+                        {
+                            "name": "降水量",
+                            "type": "bar",
+                            "data": [2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3]
+                        }
+                    ]
+                },
+                lineBarData: {
+                    xAxis: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+                    series: [
+                        {
+                            "name": "蒸发量",
+                            "type": "bar",
+                            "data": [2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3]
+                        },
+                        {
+                            "name": "降水量",
+                            "type": "line",
+                            "data": [2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3]
+                        }
+
+                    ]
+                }
+            }
+        },
+        methods: {
+            initPieChart() {
+                createPieChart({
+                    selector: 'pie', // 图表容器
+                    data: this.chartData, // 图表数据
+                })
+            },
+            initBarChart() {
+                createBarChart({
+                    selector: 'bar', // 图表容器
+                    data: this.barData, // 图表数据
+                })
+            },
+            initLineChart() {
+                createBarChart({
+                    selector: 'line', // 图表容器
+                    data: this.lineData, // 图表数据
+                })
+            },
+            initBarLineChart() {
+                createBarChart({
+                    selector: 'lineBar', // 图表容器
+                    data: this.lineBarData, // 图表数据
+                })
+            },
+            generate_graph(element_name, pfm_data) {
+                let myChart = echarts.init(document.getElementById(element_name));
+                let legendData = [];
+                // 曲线名,mem,cpu,disk
+                for (let i = 0; i < pfm_data.series.length; i++) {
+                    legendData.push(pfm_data.series[i].name)
+                }
+                myChart.setOption({
+                    title: {
+                        show: true,
+                        text: pfm_data.title + '主机MEM,DISK,CPU使用率曲线',
+                        x: 'center'
+                    },
+                    tooltip: {
+                        trigger: 'axis'
+                    },
+                    legend: {
+                        y: 'bottom',
+                        data: legendData
+                    },
+                    calculable: true,
+                    xAxis: [
+                        {
+                            type: 'category',
+                            data: pfm_data.xAxis
+                        }
+                    ],
+                    yAxis: [
+                        {
+                            type: 'value',
+                            splitArea: {show: true},
+                            max: 100,
+                            min: 0,
+                            name: '单位(%)'
+                        }
+                    ],
+                    series: pfm_data.series
+                });
+            },
+            display_performance() {
+                let url = site_url + 'display_performance/';
+                let params = {
+                    ip: this.hostModel,
+                };
+                this.$http.post(url, params).then(response => {
+                    this.pfm_data_list = response.data.data;
+                    this.elements = [];
+                    for (let i = 0; i < this.pfm_data_list.length; i++) {
+                        this.elements.push({element_name: 'pfm' + i});
+                        window.setTimeout(() => {
+                            /*   this.generate_graph('pfm' + i, this.pfm_data_list[i]);*/
+                            createBarChart({
+                                selector: 'pfm' + i, // 图表容器
+                                data: this.pfm_data_list[i], // 图表数据
+                            })
+                        }, 500);
+
+                    }
+                }).catch(error => {
+                        console.log(error)
+                    }
+                );
+            },
+        },
+        mounted() {
+            this.initPieChart()
+            this.initBarChart()
+            this.initLineChart()
+            this.initBarLineChart()
+        }
+    })
+</script>
+<style>
+    .charts-wrapper {
+
+    }
+
+    .charts-wrapper {
+        width: 50%;
+        float: left;
+        border: 1px solid #ddd;
+    }
+</style>
+
+

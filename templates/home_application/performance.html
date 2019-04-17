@@ -1,0 +1,66 @@
+<%inherit file="/base.html"/>
+
+<%block name="content">
+<div class="performance" id="app">
+<!--
+    <i-form class="select">
+        <Form-item label="主机">
+            <i-select v-model="hostModel" style="width: 45%">
+                <i-option v-for="item in hosts" :value="item"
+                          :key="item">{{ item }}</i-option>
+            </i-select>
+        </Form-item>
+    </i-form>
+
+
+    <div v-for="item in elements" :id="item.element_name"
+         style="height:250px; margin-top: 50px; width: 80%; margin-left: 10%"></div>
+
+
+    <div class="charts-wrapper">
+        <ve-line :data="lineData" width="70%"></ve-line>
+    </div>
+</div>
+-->
+</%block>
+
+<script>
+    Vue.prototype.$http = axios;
+    let vm = new Vue({
+        el: "#app",
+        data: {
+            pfm_data_list: [],
+            ip_list: '',
+            hostModel: '',
+            bk_biz_id: [],
+            elements: [],
+            hosts: [],
+            list: [],
+            lineData: {
+                columns: ['time', 'mem', 'disk', 'cpu'],
+                rows: []
+            }
+        },
+        methods: {
+
+
+        },
+        mounted() {
+
+        },
+        watch: {
+            hostModel() {
+
+            }
+        }
+    })
+</script>
+
+<style>
+    .select {
+        margin-left: 25%;
+        margin-top: 20px;
+        width: 50%;
+    }
+
+</style>

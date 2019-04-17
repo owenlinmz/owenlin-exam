@@ -1,0 +1,102 @@
+<%inherit file="/base.html"/>
+
+<%block name="content">
+
+<div class="home-page" id="app">
+    <div class="wrapper">
+        <div>
+            {{ id }}
+            这是一个测试
+        </div>
+
+        <div class="charts-wrapper">
+            <ve-line :data="lineData" width="70%"></ve-line>
+        </div>
+        <div class="charts-wrapper">
+            <ve-histogram :data="chartData" width="70%" :extend="extend" :settings="setting"></ve-histogram>
+        </div>
+        <div class="charts-wrapper">
+            <ve-pie :data="chartData" width="70%"></ve-pie>
+        </div>
+        <div class="charts-wrapper">
+            <ve-histogram :data="lineData" :settings="chartSettings" width="70%"></ve-histogram>
+        </div>
+
+        <!-- 遍历，动态生成多个图表 -->
+        <div class="charts-wrapper" v-for="item in list">
+            <ve-pie :data="item" width="70%"></ve-pie>
+        </div>
+    </div>
+</div>
+</%block>
+<script>
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                id: "${id}",
+                chartData: {
+                    columns: ['time', 'cpu'],
+                    rows: []
+                },
+                chartSettings: {
+                    showLine: ['disk']
+                },
+                lineData: {
+                    columns: ['time', 'cpu', 'men', 'disk'],
+                    rows: []
+                },
+                extend: {
+                    <!--设置柱状图每根柱子的宽度-->
+                    barMaxWidth: 130
+                },
+                setting: {
+                    <!--设置鼠标经过时提示信息-->
+                    labelMap: {
+                        'name': '销售额'
+                    }
+                },
+                list: []
+            }
+        },
+        methods: {
+            getJson() {
+                axios.get(site_url + 'api/getJson').then(res => {
+                    this.chartData.rows = res.data.data
+                    this.lineData.rows = res.data.data
+                })
+            },
+            getList() {
+                axios.get(site_url + 'api/getJson').then(res => {
+                    this.list.push({
+                        columns: ['time', 'cpu'],
+                        rows: res.data.data
+                    })
+                    this.list.push({
+                        columns: ['time', 'disk'],
+                        rows: res.data.data
+                    })
+
+                })
+            }
+        },
+        created() {
+            this.getJson()
+            this.getList()
+            /*setInterval(this.getJson,1000)*/
+        }
+    })
+</script>
+<style>
+    .charts-wrapper {
+
+    }
+
+    .charts-wrapper {
+        width: 50%;
+        float: left;
+        border: 1px solid #ddd;
+    }
+</style>
+
+

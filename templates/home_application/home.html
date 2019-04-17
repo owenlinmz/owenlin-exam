@@ -1,0 +1,200 @@
+<%inherit file="/base.html"/>
+
+<%block name="content">
+<div class="home-page" id="app">
+    <div class="select">
+        <i-select label="选择业务" v-model="bizModel" style="width:200px">
+            <i-option v-for="item in bk_biz_id" :value="item.bk_biz_id"
+                      :key="item.bk_biz_name">{{ item.bk_biz_name }}</i-option>
+        </i-select>
+        <i-input v-model="ip_list" placeholder="请输入IP (使用逗号分隔)" style="width: 300px"></i-input>
+        <i-button type="primary" @click="search_host" style="margin:0 10px">查询主机</i-button>
+    </div>
+
+    <div class="host_list">
+        <Card style="width: 100%;">
+            <p slot="title">
+                <Icon type="ios-film-outline"></Icon>
+                主机列表
+            </p>
+            <i-table stripe height="300" width="100%" :columns="columns" :data="hosts"></i-table>
+        </Card>
+    </div>
+</div>
+</%block>
+
+<script>
+    Vue.prototype.$http = axios;
+    let vm = new Vue({
+        el: "#app",
+        data: {
+            memData: {},
+            is_delete: '',
+            desc: '',
+            modal1: false,
+            modal2: false,
+            bk_biz_id: [],
+            bizModel: '',
+            host: [],
+            hostModel: '',
+            columns: [
+                {
+                    title: '内网IP',
+                    key: 'bk_host_innerip'
+                },
+                {
+                    title: '系统名',
+                    key: 'bk_os_name'
+                },
+                {
+                    title: '主机名',
+                    key: 'bk_host_name'
+                },
+                {
+                    title: '云区域',
+                    key: 'bk_inst_name'
+                },
+                {
+                    title: '内存使用率',
+                    key: 'mem'
+                },
+                {
+                    title: '磁盘使用率',
+                    key: 'disk'
+                },
+                {
+                    title: 'cpu使用率',
+                    key: 'cpu'
+                },
+                {
+                    title: '操作',
+                    key: 'action',
+                    width: 300,
+                    align: 'center',
+                    render: (h, params) => {
+                        return h('div', [
+                            h('Button', {
+                                props: {
+                                    type: 'primary',
+                                    size: 'small'
+                                },
+                                style: {
+                                    marginRight: '10px'
+                                },
+                                on: {
+                                    click: () => {
+                                        vm.hostModel = params.row;
+                                        vm.is_delete = vm.hostModel.is_delete;
+                                        vm.modal1 = true;
+                                    }
+                                }
+                            }, '更新主机数据'),
+                            h('Button', {
+                                props: {
+                                    type: vm.button_style[Number(params.row.is_delete)].color,
+                                    size: 'small'
+                                },
+                                on: {
+                                    click: () => {
+                                        vm.hostModel = params.row;
+                                        vm.is_delete = !vm.hostModel.is_delete;
+                                        vm.modal2 = true;
+                                    }
+                                }
+                            }, vm.button_style[Number(params.row.is_delete)].title)
+                        ]);
+                    }
+                }
+            ],
+            hosts: [],
+            ip_list: '',
+            host_pfm: '',
+            button_style: [
+                {
+                    color: 'success',
+                    title: '已启用监控'
+                },
+                {
+                    color: 'error',
+                    title: '已停止监控'
+                }
+            ]
+        },
+        methods: {
+            get_biz: function () {
+                let url = site_url + 'get_biz/';
+                this.$http.get(url).then(response => {
+                    this.bk_biz_id = response.data.data;
+                }).catch(error => {
+                    console.log(error)
+                });
+            },
+            search_host: function () {
+                this.real_hosts = [];
+                let url = site_url + 'search_host/';
+                let params = {
+                    bk_host_innerip__in: this.ip_list,
+                    bk_biz_id: this.bizModel
+                };
+                this.$http.post(url, params).then(response => {
+                    this.hosts = response.data.data;
+                }).catch(error => {
+                        console.log(error)
+                    }
+                );
+            },
+            cancel() {
+                this.$Message.info('cancel');
+            },
+
+            is_update_pfm: function (data) {
+                vm.hostModel = data;
+                vm.is_delete = vm.hostModel.is_delete;
+                vm.modal1 = true;
+            },
+            update_pfm: function () {
+                if (this.is_delete === false) {
+                    url = site_url + 'get_new_pfm/?ip=' + this.hostModel.bk_host_innerip;
+                    this.$http.get(url).then(response => {
+                        Vue.set(this.hosts, this.hostModel._index, response.data.data);
+                        this.$Message.info('ok');
+                    });
+                } else {
+                    this.$Message.info('请手动启用该主机监控');
+                }
+            },
+            switch_pfm: function () {
+                params = {
+                    is_delete: !this.hostModel.is_delete,
+                    ip: this.hostModel.bk_host_innerip
+                };
+                url = site_url + 'switch_pfm/';
+                this.$http.post(url, params).then(response => {
+                    Vue.set(this.hosts, this.hostModel._index, response.data.data);
+                    this.$Message.info('ok');
+                })
+            }
+        },
+        mounted() {
+            this.get_biz();
+        },
+        watch: {
+            bizModel() {
+                this.search_host();
+            },
+        }
+
+    })
+</script>
+
+<style>
+    .select {
+        margin-left: 20%;
+        margin-top: 20px;
+        width: 60%;
+    }
+
+    .host_list {
+        margin-top: 50px;
+    }
+</style>
