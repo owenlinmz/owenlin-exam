@@ -2,7 +2,7 @@
 
 <%block name="content">
 <div class="performance" id="app">
-<!--
+
     <i-form class="select">
         <Form-item label="主机">
             <i-select v-model="hostModel" style="width: 45%">
@@ -21,7 +21,7 @@
         <ve-line :data="lineData" width="70%"></ve-line>
     </div>
 </div>
--->
+
 </%block>
 
 <script>
@@ -39,14 +39,19 @@
             lineData: {
                 columns: ['time', 'mem', 'disk', 'cpu'],
                 rows: []
-            }
+            },
+            para: ''
         },
         methods: {
-
+            GetUrlPara() {
+                var url = document.location.toString();
+                var arrUrl = url.split("?");
+                this.para = arrUrl[1];
+            }
 
         },
         mounted() {
-
+            this.GetUrlPara()
         },
         watch: {
             hostModel() {

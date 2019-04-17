@@ -38,7 +38,7 @@
             <div class="collapse navbar-collapse navbar-responsive-collapse">
                 <ul class="nav navbar-nav">
                   <%
-                    home = dev_guide = contactus = test= modal =''
+                    home = dev_guide = contactus = test = modal = performance = ''
                     relative_path = APP_PATH
                     if relative_path == SITE_URL or relative_path.startswith(SITE_URL + "?"):
                       home = 'king-navbar-active'
@@ -48,11 +48,11 @@
                       contactus = 'king-navbar-active'
                     elif relative_path.startswith(SITE_URL + "test/"):
                       test = 'king-navbar-active'
-                    elif relative_path.startswith(SITE_URL + "modal/"):
+                    elif relative_path.startswith(SITE_URL + "performance/"):
                       performance = 'king-navbar-active'
                   %>
                   <li class="${home}"><a href="${SITE_URL}"><span>首页</span></a></li>
-                    <li class="${test}"><a href="${SITE_URL}performance/"><span>主机状态</span></a></li>
+                    <li class="${performance}"><a href="${SITE_URL}performance/"><span>主机状态</span></a></li>
                   <!--    <li class="${modal}"><a href="${SITE_URL}modal/"><span>模态窗</span></a></li>
                 <li class="${dev_guide}"><a href="${SITE_URL}dev-guide/"><span>开发指引</span></a></li>
                   <li class="${contactus}"><a href="${SITE_URL}contactus/"><span>联系我们</span></a></li>-->
