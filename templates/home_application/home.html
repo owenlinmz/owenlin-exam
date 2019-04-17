@@ -7,9 +7,9 @@
             <i-option v-for="item in bk_biz_id" :value="item.bk_biz_id"
                       :key="item.bk_biz_name">{{ item.bk_biz_name }}</i-option>
         </i-select>
-        <i-input v-model="ip_list" placeholder="请输入IP (使用逗号分隔)" style="width: 300px"></i-input>
+        <i-input v-model="ip_list" type="textarea" placeholder="请输入IP (使用逗号分隔)" style="width: 300px"></i-input>
         <i-button type="primary" @click="search_host" style="margin:0 10px">查询主机</i-button>
-        <i-button type="primary" @click="jump_to" style="margin:0 10px">点击跳转</i-button>
+
 
     </div>
 
